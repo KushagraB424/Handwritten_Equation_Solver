@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+equation_solver_model.pkl
+knn_model.yml
+label_encoder.pkl
+label_encoder_extended.pkl
+label_mapping_extended.pkl
+model_info.pkl
+*.png
+*.jpg
+*.jpeg
+*.pkl
+*.pt
+*.yml
+*.yaml
+
+# Test results
+test_results.txt
+test_results_extended.txt

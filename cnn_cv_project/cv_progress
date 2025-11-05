@@ -1,0 +1,346 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Handwritten Equation Solver Using Classical CV and Symbolic Parsing\\
+
+
+}
+
+\author{\IEEEauthorblockN{Kushagra Gupta}
+\IEEEauthorblockA{\textit{School of Computer Engineering } \\
+\textit{Manipal Institute of Technology}\\
+Manipal, India  \\
+kushagrab424@gmail.com}
+
+\and
+
+\IEEEauthorblockN{Dhruv Saraogi}
+\IEEEauthorblockA{\textit{School of Computer Engineering } \\
+\textit{Manipal Institute of Technology}\\
+Manipal, India  \\
+dhruvsaraogi2005@gmail.com}
+
+\and
+
+\IEEEauthorblockN{Abhilash K Pai  }
+\IEEEauthorblockA{\textit{School of Computer Engineering } \\
+\textit{Manipal Institute of Technology }\\
+Manipal, India \\
+abhilash.pai@manipal.edu}
+
+}
+
+\maketitle
+
+
+\section{Introduction}
+\subsection{Context and Evolution of Handwritten Mathematical Expression Recognition (HMER)}
+The recognition and computation of handwritten mathematical expressions (HMER) remains a foundational challenge within computer vision and pattern recognition, primarily due to the inherent high variability in individual writing styles and the complex, two-dimensional (2D) structure of mathematical notation. The successful digitization of such content is essential for advancing fields such as automated grading systems, educational software, and accessibility technology. Early recognition systems relied heavily on heuristic methods and template matching. However, the modern standard for achieving state-of-the-art accuracy has shifted overwhelmingly toward Deep Learning (DL) methodologies.
+
+\subsection{Problem Statement: Computational Overheads in Modern HMER}
+Contemporary high-performance HMER systems leverage sophisticated neural architectures, including Convolutional Neural Networks (CNNs), Recurrent Neural Networks (RNNs), and complex sequence-to-sequence Encoder-Decoder models that often yield superior recognition rates. Despite their accuracy, these DL approaches introduce substantial computational and resource constraints. Training such models requires vast, often continuously augmented datasets (like CROHME) and extensive computational power, typically requiring dedicated GPU acceleration. This dependence on high-end infrastructure creates a significant barrier to deployment in environments where computational resources are limited, particularly for applications intended for edge computing or low-power embedded systems such as Raspberry Pi or microcontrollers.
+
+\subsection{The Proposed Low-Resource, Interpretable Approach}
+This project addresses the critical need for an HMER solution that balances effectiveness with efficiency. The proposed system deliberately adopts a lightweight and interpretable approach by focusing on classical Computer Vision (CV) techniques and traditional Machine Learning (ML) classifiers. Instead of relying on monolithic neural networks, the system employs a modular, end-to-end pipeline involving deterministic image processing, feature engineering using methods like the Scale-Invariant Feature Transform (SIFT), and classification via simple, effective models such as Support Vector Machine (SVM) or K-Nearest Neighbors (KNN). The final phase integrates algorithmic parsing with a symbolic computation engine, SymPy, ensuring an exact algebraic solution.
+
+
+\subsection{Project Significance and Target Applications}
+
+The primary significance of this system lies in providing a robust, resource-friendly alternative to existing DL-based solvers. The system’s lightweight nature minimizes dependency on large training datasets and expensive GPU infrastructure. This optimized design profile makes the project highly suitable for: 1)\textbf{ Educational tools}, where immediate, localized feedback and step-by-step solving assistance are paramount; 2) \textbf{Automated grading systems}, facilitating rapid evaluation of handwritten tests without needing centralized, high-performance computing clusters; and 3) \textbf{Deployment on low-power, embedded systems}, enabling ubiquitous access to mathematical solving capabilities.
+
+\section{LITERATURE REVIEW}
+\subsection{State-of-the-Art in Handwritten Mathematical Expression Recognition (HMER)}
+
+\subsubsection{DL-Based HMER Architectures}
+The current trajectory of HMER research is dominated by deep learning models. These models typically utilize CNNs for robust visual feature extraction and sequence-based models like RNNs or sophisticated attention-based mechanisms for structural sequence generation. The Encoder-Attention-Decoder framework is commonly employed to translate the input image into a 1D string representation, such as LaTeX. While these approaches have pushed accuracy benchmarks to new highs, they necessitate substantial computational investment in training and inference.\cite{shi2018}, \cite{alnajdawi2020}, \cite{bensebaa2021}, \cite{hassanein2022}, \cite{li2019}, \cite{julca2020}
+
+\subsubsection{Datasets and Evaluation Benchmarks}
+
+The evaluation of HMER systems predominantly relies on standardized benchmarks such as the CROHME (Competition on Recognition of Online Handwritten Mathematical Expressions) and MathWriting datasets. These datasets provide diverse expressions, often using the InkML format to capture trace data. A key difficulty noted in the literature is the scarcity of structurally rich annotations, such as MathML or detailed Stroke Label Graphs, which are crucial for accurately parsing the two-dimensional relationships inherent in mathematical expressions.\cite{zanibbi2012}, \cite{belaid2018}, \cite{twaig2021}, \cite{li2019}
+
+\subsubsection{Challenges in Structural Recognition}
+Mathematical expression recognition is fundamentally more challenging than simple 1D text recognition due to the spatial complexity involved (e.g., superscripts, fractions, and radicals). A critical deficiency in many state-of-the-art DL models is the lack of explicit symbol-to-trace alignment, which compromises the transparency of the recognition process. This structural ambiguity makes detailed error analysis difficult, a limitation that must be addressed for educational and professional applications where accountability and diagnosis are required. The current project circumvents this by enforcing modularity, ensuring that structural and spatial data are explicitly maintained during the CV stages, preventing the loss of critical geometric context before parsing.\cite{shi2018}, \cite{simistira2018}, \cite{bensebaa2021}
+
+\subsection{Foundations of Classical Computer Vision and Traditional ML for Pattern Recognition}
+
+\subsubsection{Preprocessing and Segmentation}
+The project leverages robust, established classical CV techniques for the early stages of the pipeline. Preprocessing involves standard methods, including grayscale conversion, binarization, noise filtering, normalization, and skew correction, all vital steps that enhance the input image quality and prepare it for feature extraction. Following preprocessing, symbol isolation is achieved using deterministic methods such as Contour Detection and Connected Components Analysis (CCA). These methods are highly efficient and reliable for isolating distinct stroke groups, generating bounding boxes and providing the precise spatial coordinates required for structural parsing.\cite{simistira2018}, \cite{twaig2021}
+    
+\subsubsection{Feature Engineering: Scale-Invariant Feature Transform (SIFT)}
+
+The core of the recognition pipeline utilizes feature engineering rather than full feature learning. Instead of a manual HOG implementation, the project uses the Scale-Invariant Feature Transform (SIFT) descriptor (inbuilt implementation via OpenCV's cv2.SIFT_create). SIFT detects stable keypoints and computes 128-dimension local descriptors that are robust to scale and rotation changes, and provide good distinctiveness for handwritten symbol shapes. Using the inbuilt SIFT implementation reduces implementation complexity and leverages a well-tested, optimized algorithm (note: SIFT is available via the opencv-contrib package; install `opencv-contrib-python` to access it). SIFT descriptors can be used directly (e.g., via matching or pooling strategies such as Bag-of-Visual-Words) or aggregated into fixed-length vectors for classification, providing a strong, low-overhead alternative to deep feature extractors while maintaining practical robustness for handwriting variations.\cite{lowe2004}
+
+\subsubsection{Traditional ML Classifiers}
+
+For classification, the system employs simple yet powerful traditional machine learning models: the Support Vector Machine (SVM) and K-Nearest Neighbors (KNN). SVMs are particularly well-suited for high-dimensional classification tasks when supplied with carefully engineered features like SIFT descriptors, offering excellent generalization performance even with moderate training data size. KNN provides a highly interpretable alternative for rapid prototyping. The use of these classifiers contrasts sharply with complex deep neural networks, providing sufficient recognition accuracy without demanding GPU acceleration. \cite{julca2020}, \cite{twaig2021}, \cite{hassanein2022}
+
+\subsection{Symbolic Computation and Expression Parsing}
+
+\subsubsection{The Role of Symbolic Solvers}
+
+The final stage of the pipeline relies on symbolic computation, which involves the manipulation of mathematical expressions in symbolic form to yield exact solutions, as opposed to numerical computation, which provides approximations. Libraries such as SymPy (Python), Wolfram Mathematica, and MATLAB’s Symbolic Toolbox represent the state-of-the-art in this domain. SymPy was chosen for its open-source nature and robust capabilities in algebraic manipulation. \cite{zanibbi2012}, \cite{belaid2018}
+
+\subsubsection{Algebraic Solution Methods}
+
+Once the equation structure is established, the symbolic engine applies classical algebraic algorithms. For linear systems, standard methods like Gaussian Elimination or LU Decomposition are utilized. Non-linear equations are typically addressed through algebraic substitution and factorization. These processes are precise but can become computationally demanding for exceptionally large or high-degree non-linear systems, defining a natural performance boundary for the solver.
+
+\subsubsection{Parsing Complexity}
+
+The parsing process is the crucial bridge between the visual recognition output and the computational solving input. The system must transform the one-dimensional sequence of recognized symbols (e.g., '3', 'x', '+', '4') into a hierarchical, two-dimensional Abstract Syntax Tree (AST) that correctly reflects operator precedence and structural spatial relationships. This requires the parsing logic to utilize the spatial coordinates (bounding boxes) provided during the segmentation phase. For example, a significant vertical offset in a symbol's $y$-coordinate, relative to the baseline, is algorithmically interpreted as a superscript or subscript element, thereby correctly reconstructing the full $2\text{D}$ mathematical structure required for the symbolic solver. \cite{shi2018}, \cite{alnajdawi2020}, \cite{zanibbi2012}
+
+\section{Research Gaps and Project Contribution}
+
+\subsection{Formal Articulation of Research Gaps}
+
+\subsubsection{Gap in Deployment Architecture}
+There is a critical shortage of high-performing HMER systems specifically optimized for low-power, embedded, or edge computing hardware. Existing high-accuracy solutions mandate centralized, powerful computational resources.
+
+\subsubsection{Gap in Interpretability and Diagnostic Capability}
+ End-to-end DL approaches often function as black boxes, making it challenging to diagnose precisely whether a recognition failure is attributable to faulty symbol segmentation or a classification error. This limits their use in diagnostic or educational tools where clear error reporting is beneficial.
+
+ \subsubsection{Gap in Resource-Efficiency}
+ The reliance of modern HMER on vast, continually maintained datasets presents a high resource barrier for researchers and developers working on niche applications or under resource constraints.
+
+\subsection{Core Contributions of the Handwritten Equation Solver}
+
+\subsubsection{Demonstration of Lightweight HMER Feasibility}
+The project serves as a crucial proof-of-concept, establishing that a robust, modular pipeline based on classical CV features (SIFT) and simple ML classification (SVM/KNN) can achieve effective HMER performance while ensuring minimal computational and resource overhead.
+
+\subsubsection{Establishment of a Structural and Interpretable Pipeline}
+By implementing explicit, deterministic segmentation via Contour Detection (Milestone 4), the system guarantees that the structural, spatial coordinates of every symbol are preserved. This deliberate design choice bypasses the structural ambiguity noted in some DL approaches and provides the necessary input for accurate 2D parsing.
+
+\subsubsection{End-to-End Symbolic Solution}
+The system delivers a complete, full-stack solution, encompassing raw image processing, efficient feature-based recognition, algorithmic structural parsing, and exact algebraic solution via SymPy integration, culminating in an integrated, intuitive visual output.
+
+
+\section{Objectives}
+
+
+\subsection{Technical Objectives}
+\begin{enumerate}
+    \item \textbf{Symbol Recognition System Development:} Design and implement a robust feature extraction system utilizing SIFT descriptors and raw pixel intensity vectors to train a traditional machine learning classifier (SVM or KNN) for accurately recognizing all required handwritten mathematical symbols (digits, standard operators, and variables).
+    
+    \item \textbf{Algorithmic Parsing Implementation:} Develop and refine parsing logic capable of utilizing the geometrically-informed sequence of recognized symbols to correctly interpret 2D spatial relationships and generate a valid, hierarchical Abstract Syntax Tree (AST) representing the full mathematical expression.
+    
+    \item \textbf{Symbolic Solving Integration:} Integrate the SymPy library to manipulate and algebraically solve the parsed AST, ensuring determination of the exact symbolic solution for the unknown variable(s).
+\end{enumerate}
+
+\subsection{Deployment and Output Objectives}
+\begin{enumerate}
+    \item \textbf{Output Visualization:} Implement the final output rendering module responsible for accurately overlaying the computed symbolic solution back onto the original input image, delivering a clear and intuitive end-user experience.
+    
+    \item \textbf{Application Interface:} Construct and finalize the user-friendly Graphical User Interface (GUI) or Command Line Interface (CLI) application necessary to demonstrate the full functional capability of the system.
+\end{enumerate}
+
+
+
+\section{methodology and progress status}
+
+
+The project methodology follows a sequential six-stage pipeline that integrates classical computer vision techniques with symbolic computation. 
+
+\subsection{Data Curation and Initialization}
+The initial phase involved finalizing the \textbf{Literature Review } on handwritten text recognition and mathematical OCR, which included identifying suitable datasets such as subsets of CROHME. This was followed by dataset download, curation, and cleaning, ensuring a diverse collection of handwritten equations. A critical component of this step, was the rigorous labeling process, translating equation images into structured formats (LaTeX/MathML) suitable for segmented character classification and training.
+
+\subsection{ Image Preprocessing Pipeline}
+The input image preprocessing pipeline, ensures image quality enhancement necessary for reliable contour detection.
+
+\begin{itemize}
+    \item \textbf{Grayscale and Binarization:} The raw input image is converted to grayscale, followed by adaptive binarization to create a high-contrast binary image that minimizes noise.
+    \item \textbf{Noise Filtering and Normalization:} Standard noise removal techniques are applied, and image dimensions are normalized for consistent feature extraction.
+    \item \textbf{Skew Correction:} Algorithms detect and correct minor rotational skew, ensuring symbols are properly aligned for recognition.
+\end{itemize}
+
+\subsection{Symbol Segmentation and Isolation}
+Segmentation, isolates each symbol and transfers structural information from the image domain to the computational domain.
+
+\begin{itemize}
+    \item \textbf{Connected Components Analysis (CCA):} Identifies groups of foreground pixels forming individual symbols.
+    \item \textbf{Contour Detection:} OpenCV-based algorithms trace symbol boundaries.
+    \item \textbf{Region of Interest (ROI) Extraction:} Bounding boxes are computed for each contour, storing spatial metadata essential for later parsing.
+\end{itemize}
+
+    \subsection{Feature Extraction and Symbol Recognition}
+
+\begin{itemize}
+    \item \textbf{Feature Extraction:} For each isolated ROI, SIFT keypoints and descriptors are computed using OpenCV's inbuilt SIFT implementation (cv2.SIFT_create). The resulting local descriptors (128-D) are either aggregated into fixed-length representations (for example, via Bag-of-Visual-Words or descriptor pooling) or used with matching/classification schemes. Additionally, raw pixel intensity vectors can supplement the feature set when appropriate.
+    \item \textbf{Model Training:} The extracted feature representations are used to train the Support Vector Machine (SVM) classifier, known for its strong generalization performance with handcrafted features. K-Nearest Neighbors (KNN) is retained as a baseline for quick prototyping and interpretability.
+    \item \textbf{Pipeline Integration:} The trained classifier processes the segmented symbols in order, generating a recognized symbol sequence (e.g., “3x+4=10”). Note: because SIFT is part of OpenCV's contrib modules, ensure the runtime environment includes `opencv-contrib-python` (or an OpenCV build with SIFT enabled).
+\end{itemize}
+
+\subsection{Algorithmic Parsing and Symbolic Solving}
+
+\begin{itemize}
+    \item \textbf{Parsing Logic:} Sequential outputs from recognition are combined with spatial data to construct a hierarchical Abstract Syntax Tree (AST). Spatial heuristics interpret vertical displacement (e.g., superscript or subscript) to reconstruct 2D expressions accurately.
+    \item \textbf{SymPy Integration:} The AST is passed to the SymPy symbolic computation engine, which performs algebraic manipulation, variable isolation, and simplification to derive the final exact solution.
+\end{itemize}
+
+While symbolic computation provides precise solutions, its complexity scales with non-linear systems. Therefore, the design prioritizes efficiency for standard algebraic expressions—the intended scope of this project.
+
+\subsection{ Detailed System Block Diagram}
+The system operates as a six-stage pipeline ensuring preservation of structural and contextual integrity from image input to symbolic output.
+
+\begin{table}[h!]
+\centering
+\caption{Detailed System procedural Flow}
+\scriptsize % reduces font size
+\resizebox{0.50\textwidth}{!}{%
+\begin{tabular}{|p{2.2cm}|p{3.4cm}|p{4.2cm}|p{3.4cm}|}
+\hline
+\textbf{Module/Stage} & \textbf{Input Data Type} & \textbf{Key CV/ML Technique} & \textbf{Output Data Type} \\ 
+\hline
+I. Input \& Preprocessing & Raw RGB/Grayscale Image & Binarization, Noise Filtering, Skew Correction & Clean, Normalized Binary Image \\ 
+\hline
+II. Segmentation & Normalized Binary Image & Contour Detection, Connected Components Analysis (CCA), Isolated Character Bounding Boxes (ROI) & Spatial Coordinates \\ 
+\hline
+III. Feature Extraction & Isolated Character Images & SIFT descriptors, Pixel Intensity Vectors, Feature Vector Array & Feature Vector Array \\ 
+\hline
+IV. Symbol Recognition (ML) & Feature Vector Array & Trained Classifier (SVM or KNN) & Sequenced List of Recognized Symbols (Text String) \\ 
+\hline
+V. Algorithmic Parsing & Sequenced Symbols + Spatial Coordinates & Context-Free Grammar (CFG), Spatial Heuristics, Expression Tree Generation & Abstract Syntax Tree (AST) \\ 
+\hline
+VI. Symbolic Solving \& Output & Abstract Syntax Tree (AST) & SymPy/Symbolic Solver (Equation Manipulation) & Final Simplified Expression \\ 
+\hline
+\end{tabular}%
+}
+\end{table}
+
+
+\subsection{Progress Summary and Forward Plan}
+
+
+\begin{table}[h!]
+\centering
+\caption{Quantitative Progress Summary}
+\scriptsize
+\resizebox{0.50\textwidth}{!}{%
+\begin{tabular}{|c|p{6cm}|c|}
+\hline
+\textbf{Sl. No.} & \textbf{Component / Work Element} & \textbf{Expected Completion Date} \\ 
+\hline
+1 & Literature Review (HMER, Math OCR) \& Dataset Identification & 20/08 \\ 
+\hline
+2 & Dataset Curation, Download, and Labeling & 27/08 \\ 
+\hline
+3 & Image Preprocessing (Grayscale, Binarization, Noise Removal, Skew Correction) & 03/09 \\ 
+\hline
+4 & Symbol Segmentation (Contour Detection, CCA) & 10/09 \\ 
+\hline
+5 & Feature Extraction (SIFT descriptors, Pixel Intensity Vectors) & 17/09 \\ 
+\hline
+6 & ML Model Training (SVM \& KNN Classifiers) & 24/09 \\ 
+\hline
+7 & Algorithmic Parsing (CFG, AST Generation) & 01/10 \\ 
+\hline
+8 & Symbolic Computation \& Output Validation (SymPy Integration) & 08/10 \\ 
+\hline
+\end{tabular}%
+}
+\end{table}
+
+
+\begin{figure}
+        \centering
+        \includegraphics[width=0.8\linewidth]{Untitled diagram _ Mermaid Chart-2025-10-06-144216.png}
+        \caption{Block diagram of workflow}
+        \label{fig:placeholder}
+\end{figure}
+
+
+\begin{thebibliography}{00}
+
+\bibitem{shi2018}
+Z. Shi, L. Schomaker, and B. Li, “Handwritten Mathematical Expression Recognition: A Survey,” \textit{IEEE Transactions on Human-Machine Systems}, vol. 48, no. 2, pp. 155–171, 2018.
+
+\bibitem{alnajdawi2020}
+R. Al-Najdawi \textit{et al.}, “Deep Learning Approaches for Handwritten Mathematical Expression Recognition: A Review,” \textit{Journal of King Saud University - Computer and Information Sciences}, vol. 32, no. 3, pp. 253–267, 2020.
+
+\bibitem{graves2009}
+A. Graves and J. Schmidhuber, “Offline Handwriting Recognition with Multidimensional Recurrent Neural Networks,” \textit{Advances in Neural Information Processing Systems}, vol. 22, 2009.
+
+\bibitem{dalal2005}
+N. Dalal and B. Triggs, “Histograms of Oriented Gradients for Human Detection,” in \textit{Proc. IEEE Conf. Computer Vision and Pattern Recognition}, vol. 1, pp. 886–893, 2005.
+
+\bibitem{teague1980}
+M. R. Teague, “Image Analysis Via the General Theory of Moments,” \textit{Journal of the Optical Society of America}, vol. 70, no. 8, pp. 920–930, 1980.
+
+\bibitem{cortes1995}
+C. Cortes and V. Vapnik, “Support-Vector Networks,” \textit{Machine Learning}, vol. 20, no. 3, pp. 273–297, 1995.
+
+\bibitem{cover1967}
+T. Cover and P. Hart, “Nearest Neighbor Pattern Classification,” \textit{IEEE Transactions on Information Theory}, vol. 13, no. 1, pp. 21–27, 1967.
+
+\bibitem{bensebaa2021}
+M. Bensebaa \textit{et al.}, “A Comprehensive Survey on Mathematical Expression Recognition,” \textit{Pattern Recognition Letters}, vol. 141, pp. 1–10, 2021.
+
+\bibitem{hassanein2022}
+A. Hassanein \textit{et al.}, “Handwritten Mathematical Expression Recognition: A Comprehensive Review,” \textit{Journal of Applied Mathematics and Physics}, vol. 10, no. 7, pp. 2133–2150, 2022.
+
+\bibitem{julca2020}
+F. Julca-Aguilar \textit{et al.}, “A Survey on Handwritten Text Recognition Using Deep Learning,” \textit{Neural Computing and Applications}, vol. 32, no. 11, pp. 6981–7001, 2020.
+
+\bibitem{kim1998}
+S. Kim, “Symbol Recognition and Its Application to Mathematical Expression Recognition,” \textit{International Journal of Imaging Systems and Technology}, vol. 9, no. 4, pp. 263–273, 1998.
+
+\bibitem{hu2017}
+X. Hu and Z. Shi, “Attention-Based Encoder-Decoder Network for Handwritten Mathematical Expression Recognition,” in \textit{Proc. Int. Conf. Document Analysis and Recognition (ICDAR)}, 2017.
+
+\bibitem{belaid2018}
+A. Belaïd, “A Survey of Layout Analysis and Recognition of Mathematical Documents,” \textit{Pattern Recognition}, vol. 73, pp. 1–17, 2018.
+
+\bibitem{li2019}
+T. Li \textit{et al.}, “Deep Learning for Mathematical Expression Recognition,” \textit{The Journal of Supercomputing}, vol. 75, no. 11, pp. 7401–7423, 2019.
+
+\bibitem{chan2000}
+K. F. Chan and D. Y. Yeung, “Online Handwritten Algebraic Expression Recognition using Fuzzy Logic and Hidden Markov Models,” \textit{Pattern Recognition}, vol. 33, no. 1, pp. 19–32, 2000.
+
+\bibitem{zanibbi2012}
+R. Zanibbi and D. Blostein, “Recognition and Retrieval of Mathematical Expressions,” \textit{International Journal on Document Analysis and Recognition (IJDAR)}, vol. 15, no. 4, pp. 331–356, 2012.
+
+\bibitem{simistira2018}
+F. Simistira \textit{et al.}, “Offline Handwritten Text Recognition: A Survey,” \textit{Journal of Imaging}, vol. 4, no. 1, p. 14, 2018.
+
+\bibitem{twaig2021}
+K. Twaig \textit{et al.}, “Mathematical Expression Recognition: A Comparative Review of Methods,” \textit{International Journal of Computer Applications}, vol. 178, no. 51, pp. 30–38, 2021.
+
+\bibitem{sympy2023}
+SymPy Development Team, \textit{SymPy: Python Library for Symbolic Mathematics}, 2023.
+
+\bibitem{wolfram2023}
+Wolfram Research, Inc., \textit{Mathematica, Version 13.3}, Champaign, IL, 2023.
+
+\bibitem{harris2020}
+C. R. Harris \textit{et al.}, “Array Programming with NumPy,” \textit{Nature}, vol. 585, no. 7825, pp. 357–362, 2020.
+
+\bibitem{oliphant2007}
+T. E. Oliphant, “Python for Scientific Computing,” \textit{Computing in Science \& Engineering}, vol. 9, no. 3, pp. 10–20, 2007.
+
+\bibitem{deng2013}
+L. Deng \textit{et al.}, “Deep Neural Networks for Acoustic Modeling in Speech Recognition: The Shared Views of Four Research Groups,” \textit{IEEE Signal Processing Magazine}, vol. 29, no. 1, pp. 82–95, 2013.
+
+\bibitem{viola2004}
+P. Viola and M. Jones, “Robust Real-Time Face Detection,” \textit{International Journal of Computer Vision}, vol. 57, no. 2, pp. 137–154, 2004.
+
+\bibitem{lowe2004}
+D. G. Lowe, “Distinctive Image Features from Scale-Invariant Keypoints,” \textit{International Journal of Computer Vision}, vol. 60, no. 2, pp. 91–110, 2004.
+
+\bibitem{bradski2000}
+G. Bradski, “The OpenCV Library,” \textit{Dr. Dobb’s Journal of Software Tools}, vol. 25, no. 11, pp. 120–126, 2000.
+
+\bibitem{lecun1998}
+Y. LeCun \textit{et al.}, “Gradient-Based Learning Applied to Document Recognition,” \textit{Proceedings of the IEEE}, vol. 86, no. 11, pp. 2278–2324, 1998.
+
+\end{thebibliography}
+
+
+\end{document}
