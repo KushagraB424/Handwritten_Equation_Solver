@@ -61,111 +61,122 @@ Solution: x = 5
 For best results, use clear handwriting and ensure good contrast between the text and background. The current model is a simple example and may need to be trained on a larger dataset for better accuracy.
 
 
-# Extended Model with π and e Support
+# Extende with π ane e support
 
-## Overview
-This extended model includes support for recognizing π (pi) and e symbols in addition to all standard mathematical symbols.
+A deep learning project for computer vision tasks using Convolutional Neural Networks (CNN).
 
-## Training Details
+## Project Overview
+This project implements various CNN architectures for image classification, object detection, or other computer vision tasks. It's designed to be modular and easy to extend for different use cases.
 
-### Dataset
-- **Total Images**: 10,437
-- **Classes**: 20 symbols
-- **Training Split**: 70% train, 15% validation, 15% test
+## Features
+- Support for multiple CNN architectures
+- Data preprocessing and augmentation
+- Model training and evaluation
+- Pretrained model support (e.g., ResNet, VGG, etc.)
+- Visualization tools for model performance
 
-### Symbol Distribution
-| Symbol | Count | Maps To |
-|--------|-------|---------|
-| 0-9 | Various | Digits |
-| x, y, z | Various | Variables |
-| plus | 596 | + |
-| minus | 655 | - |
-| mul | 577 | * |
-| div | 618 | / |
-| dec | 624 | . |
-| **pi** | **500** | **np.pi** |
-| **e** | **500** | **np.e** |
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/cnn-cv-project.git
+   cd cnn-cv-project
+   ```
 
-### Label Mapping
-The model automatically maps:
-- `pi` → `np.pi` (for use with numpy/sympy)
-- `e` → `np.e` (for use with numpy/sympy)
+2. Create and activate a virtual environment (recommended):
+   ```bash
+   python -m venv venv
+   .\venv\Scripts\activate  # On Windows
+   source venv/bin/activate  # On Linux/Mac
+   ```
 
-## Files Generated
-
-### Model Files
-- `equation_solver_model_extended.pt` - Trained PyTorch model
-- `label_encoder_extended.pkl` - Label encoder with 20 classes
-- `label_mapping_extended.pkl` - Mapping dictionary (pi→np.pi, e→np.e)
-- `test_results_extended.txt` - Test accuracy and results
-
-### Training Script
-- `train_model_extended.py` - Training script that:
-  - Loads all symbols from data_root except 'equals'
-  - Limits π and e to 500 images each
-  - Supports both .png and .jpg image formats
-  - Uses data augmentation
-  - Implements early stopping
-
-### Classification Script
-- `classify_symbols_extended.py` - Standalone classifier
-- Can be used to test individual symbol images
-- Returns mapped labels (np.pi, np.e)
+3. Install the required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Usage
+1. Prepare your dataset in the appropriate directory structure
+2. Configure the model parameters in `config.py` (if available)
+3. Run the training script:
+   ```bash
+   python train.py
+   ```
+4. Evaluate the model:
+   ```bash
+   python evaluate.py
+   ```
 
-### Training
-```bash
-python train_model_extended.py
-```
+## CNN Architecture
 
-### Using in Equation Solver
-The `EquationSolver` class now supports the extended model:
-
-```python
-from equation_solver import EquationSolver
-
-# Initialize with extended model
-solver = EquationSolver(use_extended_model=True)
-solver.load_model()
-
-# Now can recognize π and e in equations
-# Example: 2*π = x  or  e*3 = x
-```
-
-### Web Application
-The Flask app (`app.py`) has been updated to use the extended model by default:
-```bash
-python app.py
-```
-
-## Example Equations
-The extended model can now solve equations like:
-- `2*np.pi = x` → x = 6.28...
-- `np.e*3 = x` → x = 8.15...
-- `x + np.pi = 5` → x = 1.86...
-- `np.pi * np.e = x` → x = 8.54...
-
-## Technical Details
+The model is built using PyTorch and features a custom CNN architecture with residual connections for improved training stability and performance.
 
 ### Model Architecture
-- **Type**: Convolutional Neural Network (CNN)
-- **Layers**: 
-  - 3 convolutional blocks with batch normalization
-  - 2 residual blocks
-  - Global average pooling
-  - 2 fully connected layers
-- **Input Size**: 64x64 grayscale images
-- **Output**: 20 classes
 
-### Performance
-- Training uses AdamW optimizer with weight decay
-- Learning rate scheduling with ReduceLROnPlateau
-- Early stopping with patience of 10 epochs
-- Data augmentation during training
+1. **Input Layer**
+   - Input shape: 1x64x64 (grayscale images)
+   - Normalization: Pixel values scaled to [0, 1]
 
-## Notes
-- The original model (`equation_solver_model.pt`) remains unchanged
-- Both models can coexist in the same directory
-- Set `use_extended_model=False` to use the original model
+2. **Convolutional Blocks**
+   - **Block 1**:
+     - Conv2D: 32 filters (3x3), padding=1
+     - Batch Normalization
+     - ReLU activation
+     - Dropout (0.2)
+     - MaxPool2D (2x2)
+   
+   - **Block 2**:
+     - Conv2D: 64 filters (3x3), padding=1
+     - Batch Normalization
+     - ReLU activation
+     - Dropout (0.3)
+     - MaxPool2D (2x2)
+   
+   - **Block 3**:
+     - Conv2D: 128 filters (3x3), padding=1
+     - Batch Normalization
+     - ReLU activation
+     - Dropout (0.4)
+     - MaxPool2D (2x2)
+
+3. **Residual Blocks**
+   - Two residual blocks with skip connections
+   - Each block contains:
+     - Conv2D (3x3) → BatchNorm → ReLU → Conv2D (3x3) → BatchNorm
+     - Skip connection adds input to output
+     - Final ReLU activation
+
+4. **Classification Head**
+   - Global Average Pooling
+   - Fully Connected Layer: 128 → 256 units
+   - ReLU activation
+   - Dropout (0.5)
+   - Output Layer: 256 → num_classes
+
+### Key Features
+- **Residual Connections**: Help mitigate vanishing gradient problem
+- **Batch Normalization**: Improves training stability
+- **Progressive Dropout**: Increasing dropout rates in deeper layers
+- **Global Average Pooling**: Reduces parameters before final classification
+
+## Project Structure
+```
+cnn-cv-project/
+├── data/                   # Dataset directory
+├── models/                 # Model definitions
+├── utils/                  # Utility scripts
+├── config.py               # Configuration file
+├── train.py               # Training script
+├── evaluate.py            # Evaluation script
+├── requirements.txt       # Dependencies
+└── README.md              # This file
+```
+
+## Requirements
+- Python 3.8+
+- PyTorch or TensorFlow
+- Other dependencies listed in `requirements.txt`
+
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+ended_model=False` to use the original model
 - The extended model does NOT include 'equals' symbol (equations are split by the interface)
