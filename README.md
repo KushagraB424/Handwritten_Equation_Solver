@@ -140,7 +140,7 @@ The system employs two complementary models:
 - Incorporate deep learning models for improved recognition accuracy
 
 
-# Extende with π ane e support
+# Extended with π ane e support
 
 A deep learning project for computer vision tasks using Convolutional Neural Networks (CNN).
 
